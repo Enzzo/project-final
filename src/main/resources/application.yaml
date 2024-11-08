@@ -102,6 +102,7 @@ spring:
   sql:
     init:
       mode: always
+      schema-locations: classpath:/data4dev/data.sql
 
   mail:
     properties:
