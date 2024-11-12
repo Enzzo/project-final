@@ -135,7 +135,7 @@ create table TASK_TAG
 -- Changeset 11: Создание таблицы USER_BELONG
 create table USER_BELONG
 (
-    ID bigserial primary key,
+    ID bigint auto_increment primary key,
     OBJECT_ID      bigint not null,
     OBJECT_TYPE    smallint not null,
     USER_ID        bigint not null,

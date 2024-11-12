@@ -5,6 +5,8 @@ spring:
     driver-class-name: org.h2.Driver
     username: sa
     password: password
+    hikari:
+      pool-name: HikariCP
   h2:
     console:
       enabled: true
