@@ -1,21 +1,24 @@
-# Отключаем кэширование для тестов
-spring.cache.type: none
-
-# Конфигурация базы данных H2 для тестового профиля
 spring:
+  profiles: test
   datasource:
-    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
     driver-class-name: org.h2.Driver
     username: sa
     password: password
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
   jpa:
     hibernate:
-      ddl-auto: create-drop  # Для автоматического создания и удаления схемы при каждом запуске тестов
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.H2Dialect  # Используем H2-диалект
+      ddl-auto: none  # Используем Liquibase, не Hibernate для генерации схемы
+    show-sql: true
+  liquibase:
+    enabled: true
+    changelog: classpath:/db/changelog.sql  # Указываем файл changelog для тестов
+    default-schema: PUBLIC  # В H2 обычно это PUBLIC
+    drop-first: false  # Не удалять схему перед применением изменений
+    contexts: test
   sql:
     init:
-      mode: always  # Указываем Spring, что нужно всегда инициализировать базу
-      schema-locations: classpath:/db/schema-h2.sql  # Путь к файлу схемы для H2
-      data-locations: classpath:/db/data-h2.sql  # Путь к файлу данных для H2
+      platform: h2
