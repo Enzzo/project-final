@@ -4,25 +4,34 @@
 DROP TABLE IF EXISTS USER_ROLE;
 DROP TABLE IF EXISTS CONTACT;
 DROP TABLE IF EXISTS MAIL_CASE;
-DROP SEQUENCE IF EXISTS MAIL_CASE_ID_SEQ;
+DROP
+SEQUENCE IF EXISTS MAIL_CASE_ID_SEQ;
 DROP TABLE IF EXISTS PROFILE;
 DROP TABLE IF EXISTS TASK_TAG;
 DROP TABLE IF EXISTS USER_BELONG;
-DROP SEQUENCE IF EXISTS USER_BELONG_ID_SEQ;
+DROP
+SEQUENCE IF EXISTS USER_BELONG_ID_SEQ;
 DROP TABLE IF EXISTS ACTIVITY;
-DROP SEQUENCE IF EXISTS ACTIVITY_ID_SEQ;
+DROP
+SEQUENCE IF EXISTS ACTIVITY_ID_SEQ;
 DROP TABLE IF EXISTS TASK;
-DROP SEQUENCE IF EXISTS TASK_ID_SEQ;
+DROP
+SEQUENCE IF EXISTS TASK_ID_SEQ;
 DROP TABLE IF EXISTS SPRINT;
-DROP SEQUENCE IF EXISTS SPRINT_ID_SEQ;
+DROP
+SEQUENCE IF EXISTS SPRINT_ID_SEQ;
 DROP TABLE IF EXISTS PROJECT;
-DROP SEQUENCE IF EXISTS PROJECT_ID_SEQ;
+DROP
+SEQUENCE IF EXISTS PROJECT_ID_SEQ;
 DROP TABLE IF EXISTS REFERENCE;
-DROP SEQUENCE IF EXISTS REFERENCE_ID_SEQ;
+DROP
+SEQUENCE IF EXISTS REFERENCE_ID_SEQ;
 DROP TABLE IF EXISTS ATTACHMENT;
-DROP SEQUENCE IF EXISTS ATTACHMENT_ID_SEQ;
+DROP
+SEQUENCE IF EXISTS ATTACHMENT_ID_SEQ;
 DROP TABLE IF EXISTS USERS;
-DROP SEQUENCE IF EXISTS USERS_ID_SEQ;
+DROP
+SEQUENCE IF EXISTS USERS_ID_SEQ;
 
 create table PROJECT
 (
@@ -50,14 +59,14 @@ create table MAIL_CASE
 create table SPRINT
 (
     ID bigint auto_increment primary key,
-    STATUS_CODE varchar(32) not null,
-    STARTPOINT timestamp,
-    ENDPOINT timestamp,
-    CODE varchar(32) not null,
-    PROJECT_ID bigint not null,
+    STATUS_CODE varchar(32)   not null,
+    STARTPOINT  timestamp,
+    ENDPOINT    timestamp,
+    TITLE       varchar(1024) not null,
+    PROJECT_ID  bigint        not null,
     constraint FK_SPRINT_PROJECT foreign key (PROJECT_ID) references PROJECT (ID) on delete cascade
 );
-create unique index UK_SPRINT_PROJECT_CODE on SPRINT (PROJECT_ID, CODE);
+-- create unique index UK_SPRINT_PROJECT_CODE on SPRINT (PROJECT_ID, CODE);
 
 create table REFERENCE
 (
@@ -104,14 +113,18 @@ create table CONTACT
 create table TASK
 (
     ID bigint auto_increment primary key,
-    TITLE varchar(1024) not null,
-    TYPE_CODE varchar(32) not null,
-    STATUS_CODE varchar(32) not null,
-    PROJECT_ID bigint not null,
-    SPRINT_ID bigint,
-    PARENT_ID bigint,
-    STARTPOINT timestamp,
-    ENDPOINT timestamp,
+    TITLE         varchar(1024) not null,
+    DESCRIPTION   varchar(4096) not null,
+    TYPE_CODE     varchar(32)   not null,
+    STATUS_CODE   varchar(32)   not null,
+    PRIORITY_CODE varchar(32)   not null,
+    ESTIMATE      integer,
+    UPDATED       timestamp,
+    PROJECT_ID    bigint        not null,
+    SPRINT_ID     bigint,
+    PARENT_ID     bigint,
+    STARTPOINT    timestamp,
+    ENDPOINT      timestamp,
     constraint FK_TASK_SPRINT foreign key (SPRINT_ID) references SPRINT (ID) on delete set null,
     constraint FK_TASK_PROJECT foreign key (PROJECT_ID) references PROJECT (ID) on delete cascade,
     constraint FK_TASK_PARENT_TASK foreign key (PARENT_ID) references TASK (ID) on delete cascade
@@ -156,6 +169,7 @@ create table USER_BELONG
     constraint FK_USER_BELONG foreign key (USER_ID) references USERS (ID) on delete cascade
 );
 create unique index UK_USER_BELONG on USER_BELONG (OBJECT_ID, OBJECT_TYPE, USER_ID, USER_TYPE_CODE);
+create index IX_USER_BELONG_USER_ID on USER_BELONG (USER_ID);
 
 create table ATTACHMENT
 (
@@ -177,21 +191,123 @@ create table USER_ROLE
     constraint FK_USER_ROLE foreign key (USER_ID) references USERS (ID) on delete cascade
 );
 
--- Заполнение таблиц значениями для тестов
 --changeset kmpk:populate_data
 
-insert into REFERENCE (CODE, TITLE, REF_TYPE) values
-                                                  ('task', 'Task', 2), ('story', 'Story', 2), ('bug', 'Bug', 2), ('epic', 'Epic', 2),
-                                                  ('planning', 'Planning', 4), ('active', 'Active', 4), ('finished', 'Finished', 4),
-                                                  ('author', 'Author', 5), ('developer', 'Developer', 5), ('reviewer', 'Reviewer', 5), ('tester', 'Tester', 5),
-                                                  ('scrum', 'Scrum', 1), ('task_tracker', 'Task tracker', 1),
-                                                  ('skype', 'Skype', 0), ('tg', 'Telegram', 0), ('mobile', 'Mobile', 0), ('phone', 'Phone', 0),
-                                                  ('critical', 'Critical', 7), ('high', 'High', 7), ('normal', 'Normal', 7), ('low', 'Low', 7), ('neutral', 'Neutral', 7);
+insert into REFERENCE (CODE, TITLE, REF_TYPE)
+values
+    ('task', 'Task', 2),
+    ('story', 'Story', 2),
+    ('bug', 'Bug', 2),
+    ('epic', 'Epic', 2),
+    ('planning', 'Planning', 4),
+    ('active', 'Active', 4),
+    ('finished', 'Finished', 4),
+    ('author', 'Author', 5),
+    ('developer', 'Developer', 5),
+    ('reviewer', 'Reviewer', 5),
+    ('tester', 'Tester', 5),
+    ('scrum', 'Scrum', 1),
+    ('task_tracker', 'Task tracker', 1),
+    ('skype', 'Skype', 0),
+    ('tg', 'Telegram', 0),
+    ('mobile', 'Mobile', 0),
+    ('phone', 'Phone', 0),
+    ('critical', 'Critical', 7),
+    ('high', 'High', 7),
+    ('normal', 'Normal', 7),
+    ('low', 'Low', 7),
+    ('neutral', 'Neutral', 7);
 
-insert into REFERENCE (CODE, TITLE, REF_TYPE, AUX) values
-                                                       ('assigned', 'Assigned', 6, '1'), ('three_days_before_deadline', 'Three days before deadline', 6, '2'),
-                                                       ('two_days_before_deadline', 'Two days before deadline', 6, '4'), ('one_day_before_deadline', 'One day before deadline', 6, '8'),
-                                                       ('deadline', 'Deadline', 6, '16'), ('overdue', 'Overdue', 6, '32'),
-                                                       ('todo', 'ToDo', 3, 'in_progress,canceled'), ('in_progress', 'In progress', 3, 'ready_for_review,canceled'),
-                                                       ('ready_for_review', 'Ready for review', 3, 'review,canceled'), ('review', 'Review', 3, 'ready_for_test,canceled'),
-                                                       ('done', 'Done', 3, null), ('canceled', 'Canceled', 3, null);
+insert into REFERENCE (CODE, TITLE, REF_TYPE, AUX)
+values ('assigned', 'Assigned', 6, '1'),
+       ('three_days_before_deadline', 'Three days before deadline', 6, '2'),
+       ('two_days_before_deadline', 'Two days before deadline', 6, '4'),
+       ('one_day_before_deadline', 'One day before deadline', 6, '8'),
+       ('deadline', 'Deadline', 6, '16'),
+       ('overdue', 'Overdue', 6, '32'),
+       ('todo', 'ToDo', 3, 'in_progress,canceled'),
+       ('in_progress', 'In progress', 3, 'ready_for_review,canceled'),
+       ('ready_for_review', 'Ready for review', 3, 'review,canceled'),
+       ('review', 'Review', 3, 'ready_for_test,canceled'),
+       ('done', 'Done', 3, null),
+       ('canceled', 'Canceled', 3, null);
+
+-- Изменение таблицы SPRINT
+-- Шаг 1. Переименовываем столбец TITLE во временное название
+-- Шаг 1. Создаем новый столбец CODE с нужными параметрами
+alter table SPRINT add column CODE varchar(32) not null;
+
+-- Шаг 2. Копируем данные из столбца TITLE в новый столбец CODE
+update SPRINT set CODE = TITLE;
+
+-- Шаг 3. Удаляем старый столбец TITLE
+alter table SPRINT drop column TITLE;
+
+-- Шаг 4. Создаем уникальный индекс на новом столбце CODE
+create unique index UK_SPRINT_PROJECT_CODE on SPRINT(PROJECT_ID, CODE);
+
+-- Удаление колонок из таблицы TASK
+alter table TASK drop column DESCRIPTION;
+alter table TASK drop column PRIORITY_CODE;
+alter table TASK drop column ESTIMATE;
+alter table TASK drop column UPDATED;
+
+-- Обновление записей в таблице REFERENCE для REF_TYPE = 3
+delete from REFERENCE where REF_TYPE = 3;
+insert into REFERENCE (CODE, TITLE, REF_TYPE, AUX)
+values
+    ('todo', 'ToDo', 3, 'in_progress,canceled'),
+    ('in_progress', 'In progress', 3, 'ready_for_review,canceled'),
+    ('ready_for_review', 'Ready for review', 3, 'in_progress,review,canceled'),
+    ('review', 'Review', 3, 'in_progress,ready_for_test,canceled'),
+    ('ready_for_test', 'Ready for test', 3, 'review,test,canceled'),
+    ('test', 'Test', 3, 'done,in_progress,canceled'),
+    ('done', 'Done', 3, 'canceled'),
+    ('canceled', 'Canceled', 3, null);
+
+-- Изменение ограничений для таблиц с каскадным удалением
+alter table ACTIVITY drop constraint FK_ACTIVITY_USERS;
+alter table ACTIVITY add constraint FK_ACTIVITY_USERS foreign key (AUTHOR_ID) references USERS (ID) on delete cascade;
+
+alter table USER_BELONG drop constraint FK_USER_BELONG;
+alter table USER_BELONG add constraint FK_USER_BELONG foreign key (USER_ID) references USERS (ID) on delete cascade;
+
+alter table ATTACHMENT drop constraint FK_ATTACHMENT;
+alter table ATTACHMENT add constraint FK_ATTACHMENT foreign key (USER_ID) references USERS (ID) on delete cascade;
+
+-- Обновление записей в таблице REFERENCE для REF_TYPE = 5
+delete from REFERENCE where REF_TYPE = 5;
+insert into REFERENCE (CODE, TITLE, REF_TYPE)
+values
+    ('project_author', 'Author', 5),
+    ('project_manager', 'Manager', 5),
+    ('sprint_author', 'Author', 5),
+    ('sprint_manager', 'Manager', 5),
+    ('task_author', 'Author', 5),
+    ('task_developer', 'Developer', 5),
+    ('task_reviewer', 'Reviewer', 5),
+    ('task_tester', 'Tester', 5);
+
+-- Рефакторинг поля AUX в таблице REFERENCE для REF_TYPE = 3
+delete from REFERENCE where REF_TYPE = 3;
+insert into REFERENCE (CODE, TITLE, REF_TYPE, AUX)
+values
+    ('todo', 'ToDo', 3, 'in_progress,canceled|'),
+    ('in_progress', 'In progress', 3, 'ready_for_review,canceled|task_developer'),
+    ('ready_for_review', 'Ready for review', 3, 'in_progress,review,canceled|'),
+    ('review', 'Review', 3, 'in_progress,ready_for_test,canceled|task_reviewer'),
+    ('ready_for_test', 'Ready for test', 3, 'review,test,canceled|'),
+    ('test', 'Test', 3, 'done,in_progress,canceled|task_tester'),
+    ('done', 'Done', 3, 'canceled|'),
+    ('canceled', 'Canceled', 3, null);
+
+-- Изменение уникального индекса UK_USER_BELONG
+drop index IF EXISTS UK_USER_BELONG;
+-- Добавляем вычисляемый столбец для эмуляции частичного индекса
+alter table USER_BELONG
+    add column INDEX_COLUMN varchar(255) as
+        (CASE WHEN ENDPOINT IS NULL THEN CONCAT(OBJECT_ID, '_', OBJECT_TYPE, '_', USER_ID, '_', USER_TYPE_CODE) ELSE NULL END);
+
+-- Создаем уникальный индекс на вычисляемом столбце
+create unique index UK_USER_BELONG on USER_BELONG(INDEX_COLUMN);
+

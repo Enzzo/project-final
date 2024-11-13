@@ -16,7 +16,7 @@ spring:
 
     # validate db by model
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
 
     properties:
       #  http://docs.jboss.org/hibernate/orm/5.3/userguide/html_single/Hibernate_User_Guide.html#configurations
@@ -104,6 +104,7 @@ logging:
     com.javarush.jira: DEBUG
     com.javarush.jira.common.config.MvcConfig: WARN
     org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver: DEBUG
+    liquibase: DEBUG
 
 server:
   #  https://springdoc.org/index.html#how-can-i-deploy-springdoc-openapi-ui-behind-a-reverse-proxy

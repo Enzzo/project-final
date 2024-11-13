@@ -1,0 +1,53 @@
+services:
+  # Сервис для приложения (JAR файл)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jira-app
+    ports:
+      - "8080:8080"  # Прокси-порт для доступа к приложению
+    depends_on:
+      - db          # Приложение зависит от базы данных
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/jira
+      SPRING_DATASOURCE_USERNAME: jira
+      SPRING_DATASOURCE_PASSWORD: JiraRush
+    networks:
+      - jira-network
+
+  # Сервис для базы данных (PostgreSQL)
+  db:
+    image: postgres:latest
+    container_name: postgres-db
+    environment:
+      POSTGRES_DB: jira
+      POSTGRES_USER: jira
+      POSTGRES_PASSWORD: JiraRush
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - jira-network
+
+  # Сервис для Nginx
+  nginx:
+    image: nginx:latest
+    container_name: jira-nginx
+    volumes:
+      - ./config/nginx.conf:/etc/nginx/nginx.conf  # Конфиг для nginx
+    ports:
+      - "80:80"  # Прокси-порт для доступа через nginx
+    depends_on:
+      - app       # Nginx зависит от приложения
+    networks:
+      - jira-network
+
+# Объявление сетевого моста для связи контейнеров
+networks:
+  jira-network:
+    driver: bridge
+
+# Объявление тома для хранения данных базы данных
+volumes:
+  postgres_data:
+    driver: local
