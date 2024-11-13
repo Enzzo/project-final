@@ -1,5 +1,7 @@
 spring:
-  profiles: test
+  config:
+    activate:
+      on-profile: test
   datasource:
     url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
     driver-class-name: org.h2.Driver
@@ -17,7 +19,6 @@ spring:
     show-sql: true
   liquibase:
     enabled: true
-    changelog: classpath:/db/changelog.sql  # Указываем файл changelog для тестов
     default-schema: PUBLIC  # В H2 обычно это PUBLIC
     drop-first: false  # Не удалять схему перед применением изменений
     contexts: test

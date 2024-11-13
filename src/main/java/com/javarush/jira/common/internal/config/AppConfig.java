@@ -55,8 +55,8 @@ public class AppConfig {
     public DataSource dataSourceTest() {
         return new EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.H2)
-                .addScript("classpath:/db/schema-h2.sql")
-                .addScript("classpath:/db/data-h2.sql")
+                .addScript("classpath:/db/changelog.sql")
+                .addScript("classpath:/data4dev/data.sql")
                 .build();
 //        DriverManagerDataSource dataSource = new DriverManagerDataSource();
 //        dataSource.setDriverClassName("org.h2.Driver");

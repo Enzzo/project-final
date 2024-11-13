@@ -1,0 +1,12 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- Подключаем файл для создания таблиц и схемы -->
+    <include file="classpath:db/changelog.sql" relativeToChangelogFile="false"/>
+
+    <!-- Подключаем файл для начальных данных -->
+    <include file="classpath:data4dev/data.sql" relativeToChangelogFile="false"/>
+</databaseChangeLog>

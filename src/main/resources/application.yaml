@@ -29,9 +29,11 @@ spring:
     url: jdbc:postgresql://localhost:5432/${PG_DATABASE:jira}
     username: ${PG_USERNAME:jira}
     password: ${PG_PASSWORD:JiraRush}
+    hikari:
+      auto-commit: false # чтобы не ругался на delete
 
   liquibase:
-    changeLog: "classpath:db/changelog.sql"
+    changeLog: "classpath:db/changelog-master.xml"
 
   # Jackson Fields Serialization
   jackson:
